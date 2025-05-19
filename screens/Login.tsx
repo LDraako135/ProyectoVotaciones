@@ -1,63 +1,100 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, Button, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function Login() {
- 
+const users = [
+  { username: 'admin', password: '1234', role: 'ADMIN' },
+  { username: 'user1', password: 'abcd', role: 'VOTANTE' },
+];
+
+export default function Login({ onLogin }: { onLogin: (user: any) => void }) {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(true); // Para mostrar cargando mientras buscamos usuario guardado
+
+  useEffect(() => {
+    const checkLoggedUser = async () => {
+      try {
+        const jsonUser = await AsyncStorage.getItem('usuario');
+        if (jsonUser) {
+          const user = JSON.parse(jsonUser);
+          onLogin(user);
+        }
+      } catch (e) {
+        // No hacemos nada si falla
+      } finally {
+        setLoading(false);
+      }
+    };
+    checkLoggedUser();
+  }, []);
+
+  const handleLogin = async () => {
+    if (!username || !password) {
+      Alert.alert('⚠️ Campos requeridos', 'Por favor ingresa usuario y contraseña.');
+      return;
+    }
+
+    const user = users.find(u => u.username === username);
+
+    if (!user) {
+      Alert.alert('❌ Usuario no encontrado');
+      return;
+    }
+
+    if (user.password !== password) {
+      Alert.alert('❌ Contraseña incorrecta');
+      return;
+    }
+
+    await AsyncStorage.setItem('usuario', JSON.stringify(user));
+    onLogin(user);
+
+    Alert.alert(
+      user.role === 'ADMIN' ? '👑 Bienvenido administrador' : '✅ Bienvenido'
+    );
+  };
+
+  if (loading) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color="#007bff" />
+        <Text>Cargando...</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
-      <View style={styles.login}>
-        <Text style={styles.text}>LOGIN:</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Username"
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-        />
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>Login</Text>
-        </TouchableOpacity>
-      </View>
+      <Text style={styles.title}>Iniciar Sesión</Text>
+      <TextInput
+        placeholder="Usuario"
+        style={styles.input}
+        value={username}
+        onChangeText={setUsername}
+        autoCapitalize="none"
+      />
+      <TextInput
+        placeholder="Contraseña"
+        style={styles.input}
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+      />
+      <Button title="Ingresar" onPress={handleLogin} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-  },
-  login: {
-    width: '80%',
-    backgroundColor: '#323539',
-    padding: 20,
-    borderRadius: 10,
-  },
-  text: {
-    fontSize: 24,
-    marginBottom: 20,
-    textAlign: 'center',
-  },
+  container: { flex: 1, justifyContent: 'center', padding: 20, backgroundColor: '#fff' },
+  title: { fontSize: 24, textAlign: 'center', marginBottom: 20 },
   input: {
-    height: 40,
-    borderColor: 'gray',
     borderWidth: 1,
-    marginBottom: 20,
-    paddingHorizontal: 10,
-    borderRadius: 5,
-  },
-  button: {
-    marginTop: 20,
-    backgroundColor: '#007BFF',
-    padding: 15,
-    borderRadius: 5,
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 18,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 15,
+    backgroundColor: 'white',
   },
 });

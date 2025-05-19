@@ -1,25 +1,35 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
-export default function AdminScreen() {
+export default function AdminScreen({ navigation }: { navigation: any }) {
   return (
     <View style={styles.container}>
       <View style={styles.adminPanel}>
         <Text style={styles.title}>ADMIN PANEL</Text>
-        
-        <TouchableOpacity style={styles.button}>
+
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('UserManagement')}>
           <Text style={styles.buttonText}>Manage Users</Text>
         </TouchableOpacity>
-        
+
         <TouchableOpacity style={styles.button}>
           <Text style={styles.buttonText}>Manage Elections</Text>
         </TouchableOpacity>
-        
+
         <TouchableOpacity style={styles.button}>
           <Text style={styles.buttonText}>View Results</Text>
         </TouchableOpacity>
-        
-        <TouchableOpacity style={styles.button}>
+
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => {
+            // Aquí podrías hacer logout
+            // Por ejemplo limpiar AsyncStorage y regresar a login
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'Login' }],
+            });
+          }}
+        >
           <Text style={styles.buttonText}>Logout</Text>
         </TouchableOpacity>
       </View>
@@ -28,24 +38,9 @@ export default function AdminScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-  },
-  adminPanel: {
-    width: '80%',
-    backgroundColor: '#323539',
-    padding: 20,
-    borderRadius: 10,
-  },
-  title: {
-    fontSize: 24,
-    marginBottom: 20,
-    textAlign: 'center',
-    color: 'white',
-  },
+  container: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 20 },
+  adminPanel: { width: '80%', backgroundColor: '#323539', padding: 20, borderRadius: 10 },
+  title: { fontSize: 24, marginBottom: 20, textAlign: 'center', color: 'white' },
   button: {
     marginTop: 15,
     backgroundColor: '#007BFF',
@@ -53,8 +48,5 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     alignItems: 'center',
   },
-  buttonText: {
-    color: 'white',
-    fontSize: 18,
-  },
+  buttonText: { color: 'white', fontSize: 18 },
 });

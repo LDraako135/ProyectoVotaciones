@@ -19,3 +19,11 @@ npx expo install react-native-screens react-native-safe-area-context
 
 #  instalar íconos
 npx expo install @expo/vector-icons
+@react-native-picker/picker
+
+
+1. instalar AsyncStorage
+npx expo install @react-native-async-storage/async-storage
+
+# para otros elementos (lista select)
+npm install @react-native-picker/picker
